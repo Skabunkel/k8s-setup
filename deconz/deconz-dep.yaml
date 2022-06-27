@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deconz-deploy
+  namespace: deconz
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deconz
+  template:
+    metadata:
+      labels:
+        app: deconz
+    spec:
+      containers:
+      - name: deconz
+        image: ghcr.io/deconz-community/deconz-docker:2.16.01
+        volumeMounts:
+        - name: deconz-config
+          mountPath: /root/.local/share/dresden-elektronik/deCONZ
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        - name: dev-zwave
+          mountPath: /dev/ttyACM0
+        env:
+        - name: DECONZ_DEVICE
+          value: /dev/ttyACM0
+        securityContext:
+          privileged: true
+        ports:
+        - containerPort: 80
+      volumes:
+      - name: deconz-config
+        persistentVolumeClaim:
+          claimName: deconz-pvc
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: dev-zwave
+        hostPath:
+          path: /dev/ttyACM0
+

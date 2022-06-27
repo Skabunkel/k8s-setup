@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: deconz-exp-svc
+  namespace: deconz
+  labels:
+    app: deconz-exp
+spec:
+  selector:
+    app: deconz-exp
+  ports:
+  - name: deconz-exp
+    port: 80
+    targetPort: 8080

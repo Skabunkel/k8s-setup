@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deconz-exp-deploy
+  namespace: deconz
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deconz-exp
+  template:
+    metadata:
+      labels:
+        app: deconz-exp
+    spec:
+      containers:
+      - name: deconz-exporter
+        image: ghcr.io/skabunkel/deconz-exporter/deconz-exporter:v1.2
+        env:
+        - name: HOST_PORT
+          value: "8080"
+        - name: DECONZ_URL
+          value: deconz-svc
+        - name: DECONZ_TOKEN
+          value: 
+        ports:
+        - containerPort: 80

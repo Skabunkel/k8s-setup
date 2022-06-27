@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deconz-exp-ingress
+  namespace: deconz
+spec:
+  rules:
+  - host: "deconz-exporter.data-master.home"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: deconz-exp-svc
+            port:
+              number: 80
