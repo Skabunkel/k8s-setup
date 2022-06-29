@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: deconz-exporter
-        image: ghcr.io/skabunkel/deconz-exporter/deconz-exporter:v1.2
+        image: ghcr.io/skabunkel/deconz-exporter/deconz-exporter:v1.3
         env:
         - name: HOST_PORT
           value: "8080"
