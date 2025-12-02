@@ -1,0 +1,88 @@
+---
+- name: install cri-o
+  hosts: all
+  become: true
+  vars:
+    KUBERNETES_VERSION: v1.34
+    CRIO_VERSION: v1.34
+
+  tasks:
+  - name: install pre-requisits
+    ansible.builtin.apt:
+      update_cache: yes
+      state: present
+      pkg:
+      - apt-transport-https 
+      - ca-certificates
+      - curl
+      - gpg
+  
+  - name: Update ca-certificates
+    ansible.builtin.command:
+      argv:
+        - update-ca-certificates
+
+  - name: install kubernetes key
+    ansible.builtin.get_url: 
+      url: https://pkgs.k8s.io/core:/stable:/{{ KUBERNETES_VERSION }}/deb/Release.key
+      dest: /usr/share/keyrings/kubernetes-apt-keyring.asc
+      mode: '0644'
+  
+  - name: convert key k8s to gpg keyring
+    ansible.builtin.command:
+      argv:
+        - gpg
+        - --dearmor
+        - --output
+        - /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        - /usr/share/keyrings/kubernetes-apt-keyring.asc
+      creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  
+  - name: Add kubernetes repository
+    ansible.builtin.apt_repository:
+      repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ KUBERNETES_VERSION }}/deb/ /"
+      filename: kubernetes
+      state: present
+      update_cache: yes
+  
+  - name: install cry-o key
+    ansible.builtin.get_url: 
+      url: https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ CRIO_VERSION }}/deb/Release.key
+      dest: /usr/share/keyrings/cri-o-apt-keyring.asc
+      mode: '0644'
+  
+  - name: convert key cry-o to gpg keyring
+    ansible.builtin.command:
+      argv:
+        - gpg
+        - --dearmor
+        - --output
+        - /etc/apt/keyrings/cri-o-apt-keyring.gpg
+        - /usr/share/keyrings/cri-o-apt-keyring.asc
+      creates: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+  
+  - name: Add cry-o repository
+    ansible.builtin.apt_repository:
+      repo: "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ CRIO_VERSION }}/deb/ /"
+      filename: cry-o
+      state: present
+      update_cache: yes
+    
+  - name: install Cry-o 
+    ansible.builtin.apt:
+      update_cache: yes
+      name: cri-o
+    
+  - name: check cry-o service
+    service:
+      state: started
+      name: crio.service
+  
+  - name: install kubernetes 
+    ansible.builtin.apt:
+      update_cache: yes
+      pkg:
+      - kubelet 
+      - kubeadm 
+      - kubectl
+

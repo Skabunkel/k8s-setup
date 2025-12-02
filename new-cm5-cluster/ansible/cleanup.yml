@@ -1,0 +1,59 @@
+---
+- name: uninstall
+  hosts: all
+  become: true
+
+  tasks:
+  - name: cleanup kubernetes key
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      state: absent
+  
+  - name: cleanup cry-o key
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+      state: absent
+  
+  - name: cleanup kubernetes package list
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/kubernetes.list
+      state: absent
+  
+  - name: cleanup cri-o package list
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/cry-o.list
+      state: absent
+    
+  - name: remove kubelet 
+    ansible.builtin.apt:
+      name: kubelet 
+      state: absent
+  
+  - name: remove kubeadm  
+    ansible.builtin.apt:
+      name: kubeadm  
+      state: absent
+
+  - name: remove kubectl  
+    ansible.builtin.apt:
+      name: kubectl  
+      state: absent
+
+  - name: remove Cry-o 
+    ansible.builtin.apt:
+      name: cri-o 
+      state: absent
+  
+  - name: Disable IPv4 forwarding
+    sysctl:
+      name: net.ipv4.ip_forward 
+      value: 0 
+      state: present 
+      reload: yes
+
+  - name: Disable iptables bridge
+    sysctl:
+      name: net.bridge.bridge-nf-call-iptables 
+      value: 0 
+      state: present 
+      reload: yes
